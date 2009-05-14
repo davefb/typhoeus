@@ -7,10 +7,16 @@ Spec::Rake::SpecTask.new do |t|
   t.spec_files = FileList['spec/**/*_spec.rb']
 end
 
+task :example do
+  require 'examples/twitter.rb'
+end
+
+  
+
 task :install do
   rm_rf "*.gem"
   puts `gem build typhoeus.gemspec`
-  puts `sudo gem install typhoeus-#{Typhoeus::VERSION}.gem`
+  puts `gem install typhoeus-#{Typhoeus::VERSION}.gem`
 end
 
 desc "Run all the tests"

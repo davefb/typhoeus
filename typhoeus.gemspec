@@ -35,6 +35,7 @@ Gem::Specification.new do |s|
     "spec/typhoeus/remote_method_spec.rb",
     "spec/typhoeus/response_spec.rb",
     "spec/servers/delay_fixture_server.rb",
+    "spec/servers/generic_server.rb",
     "spec/servers/method_server.rb"]
   s.has_rdoc = true
   s.homepage = %q{http://github.com/pauldix/typhoeus}

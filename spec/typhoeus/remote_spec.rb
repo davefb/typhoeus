@@ -300,6 +300,8 @@ describe Typhoeus do
         third_return_val.should  == :foo
       end
       
+
+
       it "should clear memoized responses after a full run" do
         success_mock = mock("success")
         success_mock.should_receive(:call).exactly(2).times

@@ -1,6 +1,8 @@
 module Typhoeus
   class Easy
     attr_reader :response_body, :response_header, :method, :headers, :url
+    attr_accessor :backoff, :max_backoff
+
     CURLINFO_STRING = 1048576
     OPTION_VALUES = {
       :CURLOPT_URL            => 10002,
@@ -25,6 +27,9 @@ module Typhoeus
       @method = :get
       @post_dat_set = nil
       @headers = {}
+      @response_code = 0
+      @max_backoff = 5
+      @backoff = 0.1
     end
     
     def total_time_taken
@@ -48,9 +53,14 @@ module Typhoeus
       set_option(OPTION_VALUES[:CURLOPT_NOSIGNAL], 1)
       set_option(OPTION_VALUES[:CURLOPT_TIMEOUT_MS], milliseconds)
     end
+
+    def timeout
+      @timeout
+    end
     
+
     def timed_out?
-      @timeout && total_time_taken > @timeout && response_code == 0
+      @timeout && total_time_taken*1000 > @timeout && response_code == 0
     end
     
     def request_body=(request_body)
@@ -153,6 +163,12 @@ module Typhoeus
       @failure = block
     end
 
+    def increment_backoff
+      # Simple capped exponential backoff
+      @backoff = [@backoff * 2, @max_backoff].min
+    end
+
+
     def retries
       @retries ||= 0
     end
@@ -163,17 +179,24 @@ module Typhoeus
     end
     
     def max_retries
-      @max_retries ||= 40
+      # TODO : Need a way to set this via the client logic 
+      @max_retries ||= 4
     end
     
     def max_retries?
       retries >= max_retries
     end
     
-    def reset
+
+    def internal_reset
       @response_code = 0
       @response_header = ""
       @response_body = ""
+      @retries = 0;
+    end
+
+    def reset
+      internal_reset()
       easy_reset()
     end
     
